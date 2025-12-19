@@ -33,18 +33,16 @@ if not png_files:
     for i in range(1, 6):
         img_path = os.path.join(IMAGE_DIR, f"img_{i:02d}.png")
         subprocess.run(
-            [
-                "ffmpeg", "-y",
-                "-f", "lavfi",
-                "-i", "color=c=blue:s=1280x720",
-                "-vf",
-                f"drawtext=text='Scene {i}':"
-                f"fontcolor=white:fontsize=64:"
-                f"x=(w-text_w)/2:y=(h-text_h)/2",
-                img_path,
-            ],
-            check=True,
-        )
+    [
+        "ffmpeg", "-y",
+        "-f", "lavfi",
+        "-i", "color=c=blue:s=1280x720",
+        "-vf", "drawtext=text='Scene 1':fontcolor=white:fontsize=64:x=(w-text_w)/2:y=(h-text_h)/2",
+        "-frames:v", "1",   # 🔑 THIS LINE FIXES EVERYTHING
+        "output/images/img_01.png"
+    ],
+    check=True
+    )
 
 # =========================
 # Build images.txt for FFmpeg concat
