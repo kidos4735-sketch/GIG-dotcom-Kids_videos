@@ -1,28 +1,38 @@
-name: Kids Video Bot – Step 8 (Test YouTube Connection)
+name: Build Kids Video
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"   # daily (optional)
 
 jobs:
-  test-youtube:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ffmpeg espeak
+          pip install pillow
 
-    - name: Install Python dependencies
-      run: |
-        pip install google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2
+      - name: Generate story
+        run: python scripts/generate_story.py
 
-    - name: Test YouTube connection
-      env:
-        YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-        YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-        YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-      run: python scripts/test_youtube_connection.py
+      - name: Generate voice
+        run: python scripts/generate_voice.py
+
+      - name: Generate images
+        run: python scripts/generate_images.py
+
+      - name: Create video
+        run: python scripts/create_video.py
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kids-video
+          path: output/final_video.mp4
